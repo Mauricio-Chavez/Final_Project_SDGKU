@@ -4,29 +4,28 @@ from django.db.models import JSONField
 
 
 class CustomUserManager(BaseUserManager):
-  def create_user(self, username, email, password=None, **extra_fields):
+  def create_user(self, email, password=None, **extra_fields):
     if not email:
       raise ValueError('Please provide an email address')
-    if not username:
-      raise ValueError('Please provide a username')
     
     email = self.normalize_email(email)
-    user = self.model(username=username, email=email, **extra_fields)
+    user = self.model(email=email, **extra_fields)
     user.set_password(password)
     user.save(using=self._db)
 
     return user
   
-  def create_superuser(self, username, email, password=None, **extra_fields):
+  def create_superuser(self, email, password=None, **extra_fields):
     extra_fields.setdefault('is_staff', True)
     extra_fields.setdefault('is_superuser', True)
     extra_fields.setdefault('role', 2)
       
-    return self.create_user(username, email, password, **extra_fields)
+    return self.create_user(email, password, **extra_fields)
       
 
 class User(AbstractUser, PermissionsMixin):
-  username = models.CharField(max_length=250, unique=True)
+  username = None
+
   first_name = models.CharField(max_length=250)
   last_name = models.CharField(max_length=250)
   email = models.EmailField(max_length=250, unique=True)
@@ -42,8 +41,8 @@ class User(AbstractUser, PermissionsMixin):
 
   objects = CustomUserManager()
 
-  USERNAME_FIELD = 'username'
-  REQUIRED_FIELDS = ['first_name', 'last_name', 'email']
+  USERNAME_FIELD = 'email'
+  REQUIRED_FIELDS = ['first_name', 'last_name']
 
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
@@ -58,7 +57,7 @@ class User(AbstractUser, PermissionsMixin):
     super().save(*args, **kwargs)
 
   def __str__(self):
-    return self.username
+    return self.email
   
 
 class Message(models.Model):
