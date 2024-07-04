@@ -18,9 +18,11 @@ function App() {
   return (
     <BrowserRouter>
       <div className="App">
-        <Navbar />
+        {
+          token ? <Navbar/> : null
+        }
         <Routes>
-          <Route path='/' element={token ? <Home/>: <h1>Inicia Sesion bro</h1>} />
+          <Route path='/' element={token ? <Home/>: <Login/>} />
           <Route path='/login' element={<Login/>} />
         </Routes>
 
