@@ -2,10 +2,10 @@ import axios, { AxiosResponse } from 'axios';
 import Cookies from 'js-cookie';
 
 class AuthService {
-    async login(username: string, password: string): Promise<any> {
+    async login(email: string, password: string): Promise<any> {
         try {
             const response: AxiosResponse = await axios.post("http://localhost:8000/api/login", {
-                username,
+                email,
                 password
             });
             return response.data;
