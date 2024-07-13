@@ -13,8 +13,8 @@ interface UserM{
     availability?: number[];
     photo?: string;
     messages?: number;
-    createdAt: Date;
-    updatedAt: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export default UserM;

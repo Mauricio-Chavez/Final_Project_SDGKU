@@ -30,7 +30,7 @@ class User(AbstractUser, PermissionsMixin):
   last_name = models.CharField(max_length=250)
   email = models.EmailField(max_length=250, unique=True)
   password = models.CharField(max_length=128)
-  role = models.IntegerField(default=0)
+  role = models.IntegerField()
   study_area = models.CharField(max_length=255, null=True, blank=True)
   booking = models.DateField(null=True, blank=True)
   specialties = models.TextField(null=True, blank=True)
@@ -39,11 +39,11 @@ class User(AbstractUser, PermissionsMixin):
   availability = JSONField(null=True, blank=True)
   photo = models.CharField(max_length=255, null=True, blank=True)
   messages = models.ForeignKey('Message', on_delete=models.CASCADE, null=True, blank=True)
-
+  is_visible = models.BooleanField(null=True, blank=True)
   objects = CustomUserManager()
 
   USERNAME_FIELD = 'email'
-  REQUIRED_FIELDS = ['first_name', 'last_name']
+  REQUIRED_FIELDS = ['first_name', 'last_name', 'role']
 
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
@@ -71,3 +71,15 @@ class Message(models.Model):
 
   def __str__(self):
     return self.content[:20]
+  
+
+class Certifications(models.Model):
+  tutor_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certifications')
+  name = models.CharField(max_length=255)
+  route_file = models.FileField(upload_to='certifications/')
+
+  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
+
+  def __str__(self):
+    return self.name
