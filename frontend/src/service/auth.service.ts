@@ -68,5 +68,22 @@ class AuthService {
             throw error; 
         }
     }
+    async logout(){
+        try {
+            const response: AxiosResponse = await axios.get("http://localhost:8000/api/logout", {
+                headers: {
+                    Authorization: `Token ${Cookies.get('token')}`
+                }
+            });
+            return response.data;
+        }catch (error: any) {
+            if (axios.isAxiosError(error)) {
+                console.error('Axios error:', error.response?.data || error.message);
+            } else {
+                console.error('Unexpected error:', error);
+            }
+            throw error; 
+        }
+    }
 }
 export default new AuthService();
