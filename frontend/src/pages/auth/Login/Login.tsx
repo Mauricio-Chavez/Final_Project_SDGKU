@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import useGlobalState from "../../../context/GlobalState";
 
 interface LoginForm {
-    username: string;
+    email: string;
     password: string;
 };
 
@@ -15,9 +15,10 @@ const Login = () => {
     const {setToken,setUser}= useGlobalState();
 
     const handleLogin: SubmitHandler<LoginForm> = async (data) => {
-        const { username, password } = data;
+        const { email, password } = data;
+        
         try {
-            const res = await authService.login(username, password);
+            const res = await authService.login(email, password);
             if (res.token) {
                 Cookies.set('token', res.token, { expires: 7 });
                 setToken(true);
@@ -38,10 +39,10 @@ const Login = () => {
                 <div>
                     <input
                         type="text"
-                        {...register('username', { required: 'Username is required' })}
+                        {...register('email', { required: 'Username is required' })}
                         placeholder="Username"
                     />
-                    {errors.username && <span>{errors.username.message}</span>}
+                    {errors.email && <span>{errors.email.message}</span>}
                 </div>
                 <div>
                     <input

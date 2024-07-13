@@ -1,10 +1,17 @@
 interface User{
     id: number;
-    username: string;
+    first_name: string;
+    last_name: string;
     email: string;
     password: string;
-    createdAt: string;
-    updatedAt: string;
+    role: number;
+    study_area: string;
+    booking: string;
+    specialties: string;
+    hourly_rate: number;
+    experience: string;
+    availability: string;
+    photo: string;
 }
 
 export default User;
