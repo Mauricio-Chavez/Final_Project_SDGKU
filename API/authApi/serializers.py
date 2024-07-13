@@ -7,12 +7,11 @@ from .models import user
 #         model = User
 #         fields = ['id','username','email','password']
         
-
 class UserModelSerializer(serializers.ModelSerializer):
-
+    # certifications = CertificationSerializer(many=True, read_only=True)
     class Meta:
         model = user.User
-        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'role', 'study_area', 'booking', 'specialties', 'hourly_rate', 'experience', 'availability', 'photo', 'messages', 'created_at', 'updated_at']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'role', 'study_area', 'booking', 'specialties', 'hourly_rate', 'experience', 'availability', 'photo', 'messages', 'is_visible', 'created_at', 'updated_at']
         extra_kwargs = {
             'password': {'write_only': True},
             'created_at': {'read_only': True},
@@ -34,3 +33,9 @@ class UserModelSerializer(serializers.ModelSerializer):
             isinstance.set_password(password)
         instance.save()
         return instance
+    
+class CertificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = user.Certifications
+        fields = ['id', 'tutor_id', 'name', 'route_file', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']

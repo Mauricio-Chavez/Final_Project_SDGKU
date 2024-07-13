@@ -9,6 +9,8 @@ const Register = () => {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<UserM & { [key: string]: any }>();
   const navigate = useNavigate();
@@ -19,12 +21,8 @@ const Register = () => {
     formData.append('password', data.password?.toString() || "");
     formData.append('first_name', data.first_name);
     formData.append('last_name', data.last_name);
+    formData.append('role', data.role.toString());
     formData.append('study_area', data.study_area || "");
-    formData.append('booking', data.booking?.toString() || "");
-    formData.append('specialties', data.specialties || "");
-    formData.append('hourly_rate', data.hourly_rate?.toString() || "");
-    formData.append('experience', data.experience || "");
-    formData.append('availability', JSON.stringify(data.availability));
 
     try {
       const res = await authService.register(formData);
@@ -39,6 +37,8 @@ const Register = () => {
       alert('Error creating user');
     }
   };
+
+  const selectedRole = watch('role');
 
   return (
     <div className='user-register'>
@@ -85,39 +85,27 @@ const Register = () => {
           />
         </div>
         <div>
-          <input
-            type='date'
-            {...register('booking')}
-            placeholder='Booking'
-          />
-        </div>
-        <div>
-          <input
-            type='text'
-            {...register('specialties')}
-            placeholder='Specialties'
-          />
-        </div>
-        <div>
-          <input
-            type='number'
-            {...register('hourly_rate')}
-            placeholder='Hourly rate'
-          />
-        </div>
-        <div>
-          <input
-            type='text'
-            {...register('experience')}
-            placeholder='Experience'
-          />
-        </div>
-        <div>
-          <input
-            type='text'
-            {...register('availability')}
-            placeholder='Availability'
-          />
+          <label>
+            <input
+              type="radio"
+              {...register('role', { required: 'Role is required' })}
+              value='0'
+              checked={selectedRole === 0}
+              onChange={() => setValue('role', 0)}
+            />
+            Tutee
+          </label>
+          <label>
+            <input
+              type="radio"
+              {...register('role', { required: 'Role is required' })}
+              value='1'
+              checked={selectedRole === 1}
+              onChange={() => setValue('role', 1)}
+            />
+            Tutor
+          </label>
+          {errors.role && <span>{errors.role.message}</span>}
         </div>
         <button type='submit'>Register</button>
       </form>
