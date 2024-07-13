@@ -1,3 +1,4 @@
+import os
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import UserModelSerializer
@@ -73,6 +74,10 @@ def user(request):
 @permission_classes([IsAuthenticated])
 def update_user(request):
     user = request.user
+    if 'photo' in request.data and request.data['photo'] != user.photo.name:
+        if user.photo:
+            if os.path.isfile(user.photo.path):
+                os.remove(user.photo.path)
     serializer = UserModelSerializer(instance=user, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()

@@ -9,7 +9,7 @@ interface User{
     booking: string;
     specialties: string;
     hourly_rate: number;
-    exprerience: string;
+    experience: string;
     availability: string;
     photo: string;
 }
