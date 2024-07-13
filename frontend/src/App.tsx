@@ -6,6 +6,8 @@ import useGlobalState from './context/GlobalState';
 import Login from './pages/auth/Login/Login';
 import Home from './pages/home';
 import Register from './pages/auth/Register/Register';
+import UploadCertifications from './pages/tutor/UploadCertifications';
+import ViewCertifications from './pages/tutor/ViewCertifications';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Profile from './pages/content/Profile/Profile';
@@ -29,6 +31,8 @@ function App() {
           <Route path='/profile' element={token ? <Profile/> : <Login/> } />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
+          <Route path='/upload-certifications' element={<UploadCertifications />} />
+          <Route path='/view-certifications/:id' element={<ViewCertifications />} />
         </Routes>
 
       </div>

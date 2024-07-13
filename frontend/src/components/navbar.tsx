@@ -24,6 +24,8 @@ const Navbar: React.FC = () => {
         onPointerLeaveCapture={() => { }}
         onClick={logout}
       >Logout</Button>
+      <Link to="/upload-certifications">Upload Certifications</Link>
+      <Link to="/profile">Profile</Link>
     </div>
   );
 }
