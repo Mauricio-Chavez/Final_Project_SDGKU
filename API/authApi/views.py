@@ -1,8 +1,9 @@
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
-from .serializers import UserSerializer, UserModelSerializer, CertificationSerializer
+from .serializers import UserModelSerializer, CertificationSerializer
 from .models.user import Certifications
-from django.contrib.auth.models import User
+import os
+from .models.user import User
 from rest_framework.authtoken.models import Token
 from rest_framework import status
 from django.shortcuts import get_object_or_404
@@ -64,30 +65,45 @@ def view_certifications(request, user_id):
 
 @api_view(['POST'])
 def login(request):
-    user = get_object_or_404(User,username=request.data['username'])
+    user = get_object_or_404(User,email=request.data['email'])
     if not user.check_password(request.data['password']):
         return Response({'error':'Invalid Password'},status=status.HTTP_400_BAD_REQUEST)
     
     token,created = Token.objects.get_or_create(user=user)
 
-    serializer = UserSerializer(instance=user)
+    serializer = UserModelSerializer(instance=user)
 
     return Response({'token':token.key,'user':serializer.data},status=status.HTTP_200_OK)
     
-@api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
-def profile(request):
-    # print(request.user)
-    # return Response('You are login with {}'.format(request.user.username),status=status.HTTP_200_OK)
-    serializer = UserSerializer(instance=request.user)
-    return Response(serializer.data,status=status.HTTP_200_OK)
+# @api_view(['POST'])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+# def profile(request):
+#     # print(request.user)
+#     # return Response('You are login with {}'.format(request.user.username),status=status.HTTP_200_OK)
+#     serializer = UserSerializer(instance=request.user)
+#     return Response(serializer.data,status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def user(request):
-    serializer = UserSerializer(instance=request.user)
+    serializer = UserModelSerializer(instance=request.user)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    user = request.user
+    if 'photo' in request.data and request.data['photo'] != user.photo.name:
+        if user.photo:
+            if os.path.isfile(user.photo.path):
+                os.remove(user.photo.path)
+    serializer = UserModelSerializer(instance=user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     

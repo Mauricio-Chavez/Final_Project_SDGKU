@@ -10,6 +10,7 @@ import UploadCertifications from './pages/tutor/UploadCertifications';
 import ViewCertifications from './pages/tutor/ViewCertifications';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Profile from './pages/content/Profile/Profile';
 
 function App() {
   const { tokenExists, token } = useGlobalState();
@@ -21,9 +22,13 @@ function App() {
   return (
     <BrowserRouter>
       <div className="App">
-        <Navbar />
+        {
+          token ? <Navbar/> : null
+        }
         <Routes>
-          <Route path='/' element={token ? <Home /> : <h1>Inicia Sesion bro</h1>} />
+          <Route path='/' element={token ? <Home /> : <Login/>} />
+          <Route path='/home' element={token ? <Home /> : <Login/>} />
+          <Route path='/profile' element={token ? <Profile/> : <Login/> } />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           <Route path='/upload-certifications' element={<UploadCertifications />} />

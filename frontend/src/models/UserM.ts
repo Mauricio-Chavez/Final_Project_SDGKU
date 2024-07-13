@@ -11,7 +11,7 @@ interface UserM{
     hourly_rate?: number;
     experience?: string;
     availability?: number[];
-    photo?: string;
+    photo?: any;
     messages?: number;
     created_at: Date;
     updated_at: Date;

@@ -37,7 +37,7 @@ class User(AbstractUser, PermissionsMixin):
   hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
   experience = models.TextField(null=True, blank=True)
   availability = JSONField(null=True, blank=True)
-  photo = models.CharField(max_length=255, null=True, blank=True)
+  photo = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
   messages = models.ForeignKey('Message', on_delete=models.CASCADE, null=True, blank=True)
   is_visible = models.BooleanField(null=True, blank=True)
   objects = CustomUserManager()
