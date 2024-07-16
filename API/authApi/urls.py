@@ -15,6 +15,10 @@ urlpatterns = [
     path('upload_certification', views.upload_certification),
     path('view_certifications/<int:user_id>', views.view_certifications),
     path('update', views.update_user),
+    path('logout', views.logout),
+    path('users', views.getUsers),
+    path('tutors', views.getTutors),
+    path('visibility',views.update_visible),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -23,6 +23,7 @@ const Register = () => {
     formData.append('last_name', data.last_name);
     formData.append('role', data.role.toString());
     formData.append('study_area', data.study_area || "");
+    formData.append('is_visible', false.toString());
 
     try {
       const res = await authService.register(formData);

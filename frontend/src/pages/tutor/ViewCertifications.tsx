@@ -1,14 +1,14 @@
 import { useParams } from 'react-router-dom';
-import './ViewCertifications.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Certifications from '../../models/Certifications';
 import TutorService from '../../service/tutor/TutorService';
-
+import './ViewCertifications.css';
 
 const ViewCertifications = () => {
   const { id } = useParams<{ id: string }>();
   const [certifications, setCertifications] = useState<Certifications[]>([]);
   const [loading, setLoading] = useState(true);
+  const pdfPreviewRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     const fetchCertifications = async () => {
@@ -34,12 +34,22 @@ const ViewCertifications = () => {
 
   const renderPreview = (fileUrl: string) => {
     const fileExtension = fileUrl.split('.').pop()?.toLowerCase();
-    console.log(fileUrl)
-    console.log(fileExtension)
 
     if (fileExtension === 'pdf') {
+      const displayPdfPreview = async (url: string) => {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        if (pdfPreviewRef.current) {
+          pdfPreviewRef.current.src = blobUrl;
+          pdfPreviewRef.current.style.display = 'flex';
+        }
+      };
+      displayPdfPreview(fileUrl);
       return (
-        <h1>PDF</h1>
+        <div className='pdf-container'>
+          <iframe ref={pdfPreviewRef} id="pdf-preview" style={{height:'500px', width:'100%'}}></iframe>
+        </div>
       );
     } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension || '')) {
       return <img src={fileUrl} alt="Certification" style={{ maxWidth: '600px' }} />;
