@@ -12,6 +12,7 @@ interface User{
     experience: string;
     availability: number[];
     photo: string;
+    is_visible: boolean;
 }
 
 export default User;

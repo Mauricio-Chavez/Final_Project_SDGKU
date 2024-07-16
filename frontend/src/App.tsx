@@ -11,14 +11,21 @@ import ViewCertifications from './pages/tutor/ViewCertifications';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Profile from './pages/content/Profile/Profile';
+import HomeTutor from './pages/content/HomeTutor/HomeTutor';
 
 function App() {
-  const { tokenExists, token } = useGlobalState();
+  const { tokenExists, token, user } = useGlobalState();
 
 
   useEffect(() => {
     tokenExists();
   }, [tokenExists]);
+
+  const renderHome = () => {
+    if (user?.role === 0) return <Home />;
+    if (user?.role === 1) return <HomeTutor />;
+    return <h1>Admin</h1>;
+  };
   return (
     <BrowserRouter>
       <div className="App">
@@ -26,18 +33,19 @@ function App() {
           token ? <Navbar /> : null
         }
         <Routes>
-          <Route path='/' element={token ? <Home /> : <Login />} />
-          <Route path='/home' element={token ? <Home /> : <Login />} />
+          <Route path='/' element={token ? renderHome() : <Login />} />
+          <Route path='/home' element={token ? renderHome() : <Login />} />
           <Route path='/profile' element={token ? <Profile /> : <Login />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
-          <Route path='/upload-certifications' element={<UploadCertifications />} />
-          <Route path='/view-certifications' element={<ViewCertifications />} />
+          <Route path='/upload-certifications' element={token ? <UploadCertifications /> : <Login />} />
+          <Route path='/view-certifications' element={token ? <ViewCertifications /> : <Login />} />
         </Routes>
 
       </div>
     </BrowserRouter>
   );
 }
+
 
 export default App;

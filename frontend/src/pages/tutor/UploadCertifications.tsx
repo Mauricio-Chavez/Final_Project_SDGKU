@@ -27,7 +27,6 @@ const UploadCertifications = () => {
 
     try {
       const res = await TutorService.uploadCertifications(formData);
-      console.log(res);
       if (res) {
         alert('Certificate uploaded successfully');
         navigate('/view-certifications');

@@ -137,7 +137,6 @@ const Profile = () => {
             alert('Error al actualizar el perfil');
         }
     };
-
     return (
         <div className="profile">
             <h1>Profile</h1>
