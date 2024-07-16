@@ -17,6 +17,7 @@ const Navbar: React.FC = () => {
         token ? null : <Link to="/register">Register</Link>
       }
       <Link to="/profile">Profile</Link>
+      <Link to="/upload-certifications">Upload Certifications</Link>
       <Button 
         placeholder=''
         color="red"
@@ -24,8 +25,6 @@ const Navbar: React.FC = () => {
         onPointerLeaveCapture={() => { }}
         onClick={logout}
       >Logout</Button>
-      <Link to="/upload-certifications">Upload Certifications</Link>
-      <Link to="/profile">Profile</Link>
     </div>
   );
 }

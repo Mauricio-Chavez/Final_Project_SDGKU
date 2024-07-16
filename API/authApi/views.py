@@ -11,7 +11,9 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.parsers import MultiPartParser, FormParser
-
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from django.conf import settings
 # Create your views here.
 # @api_view(['POST'])
 # def register(request):
@@ -70,9 +72,14 @@ def login(request):
         return Response({'error':'Invalid Password'},status=status.HTTP_400_BAD_REQUEST)
     
     token,created = Token.objects.get_or_create(user=user)
-
+    # email_to = user.email
     serializer = UserModelSerializer(instance=user)
-
+    # subject = 'Login Notification'
+    # message = 'You have successfully logged in.'
+    # email_from = settings.EMAIL_HOST_USER
+    # html = render_to_string('emails/login.html', {'user': user})
+    # send_mail(subject, message, email_from, [email_to], html_message=html)
+    
     return Response({'token':token.key,'user':serializer.data},status=status.HTTP_200_OK)
     
 # @api_view(['POST'])
@@ -116,10 +123,9 @@ def getUsers(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
+
 def getTutors(request):
-    tutors = User.objects.filter(role=1)
+    tutors = User.objects.filter(role=1, is_visible=True)
     serializer = UserModelSerializer(tutors, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -130,3 +136,14 @@ def getTutors(request):
 def logout(request):
     request.user.auth_token.delete()
     return Response('You are logout',status=status.HTTP_200_OK)
+
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_visible(request):
+    user = request.user
+    user.is_visible = request.data.get('is_visible', user.is_visible)
+    user.save()
+    serializer = UserModelSerializer(instance=user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    

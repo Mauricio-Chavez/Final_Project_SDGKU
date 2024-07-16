@@ -22,7 +22,6 @@ const useGlobalState = create<GlobalState>((set) => ({
         let token = Cookies.get('token');
         if (token) {
             let res = await authService.getUserInfo();
-            console.log('res', res);
             set({ user: res});
             set({ token: true });
             return true;

@@ -18,6 +18,7 @@ urlpatterns = [
     path('logout', views.logout),
     path('users', views.getUsers),
     path('tutors', views.getTutors),
+    path('visibility',views.update_visible),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
