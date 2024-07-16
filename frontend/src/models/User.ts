@@ -10,7 +10,7 @@ interface User{
     specialties: string;
     hourly_rate: number;
     experience: string;
-    availability: string;
+    availability: number[];
     photo: string;
 }
 

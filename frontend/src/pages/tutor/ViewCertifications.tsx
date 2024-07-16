@@ -3,33 +3,48 @@ import './ViewCertifications.css';
 import React, { useEffect, useState } from 'react';
 import Certifications from '../../models/Certifications';
 import TutorService from '../../service/tutor/TutorService';
+import useGlobalState from '../../context/GlobalState';
 
 
 const ViewCertifications = () => {
+  const { user, tokenExists } = useGlobalState();
   const { id } = useParams<{ id: string }>();
   const [certifications, setCertifications] = useState<Certifications[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCertifications = async () => {
-      try {
-        const data = await TutorService.getCertifications(Number(id));
-        const updatedData = data.map((cert: Certifications) => ({
-          ...cert,
-          route_file: `http://localhost:8000/api${cert.route_file}` // Ajusta esto según tu configuración
-        }));
-        setCertifications(updatedData);
-      } catch (error) {
-        console.error('Fetch certifications error', error);
-      } finally {
+      if (!user) {
+        await tokenExists();
+      }
+      if (user && user.id) {
+        try {
+          const data = await TutorService.getCertifications();
+          const updatedData = data.map((cert: Certifications) => ({
+            ...cert,
+            route_file: `http://localhost:8000/api${cert.route_file}`
+          }));
+          setCertifications(updatedData);
+        } catch (error) {
+          console.error('Fetch certifications error', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        console.error('User is not logged in or missing user ID', error);
         setLoading(false);
       }
     };
     fetchCertifications();
-  }, [id]);
+  }, [tokenExists, user, id]);
 
   if (loading) {
     return <h1>Loading...</h1>;
+  }
+
+  if (error) {
+    return <h1>{error}</h1>;
   }
 
   const renderPreview = (fileUrl: string) => {
@@ -38,9 +53,11 @@ const ViewCertifications = () => {
     console.log(fileExtension)
 
     if (fileExtension === 'pdf') {
-      return (
-        <h1>PDF</h1>
-      );
+      // return (
+      //   <h1>PDF</h1>
+      // );
+      return <a href={fileUrl} target="_blank" rel="noopener noreferrer">Download</a>;
+
     } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension || '')) {
       return <img src={fileUrl} alt="Certification" style={{ maxWidth: '600px' }} />;
     } else {

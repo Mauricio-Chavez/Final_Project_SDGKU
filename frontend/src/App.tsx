@@ -23,16 +23,16 @@ function App() {
     <BrowserRouter>
       <div className="App">
         {
-          token ? <Navbar/> : null
+          token ? <Navbar /> : null
         }
         <Routes>
-          <Route path='/' element={token ? <Home /> : <Login/>} />
-          <Route path='/home' element={token ? <Home /> : <Login/>} />
-          <Route path='/profile' element={token ? <Profile/> : <Login/> } />
+          <Route path='/' element={token ? <Home /> : <Login />} />
+          <Route path='/home' element={token ? <Home /> : <Login />} />
+          <Route path='/profile' element={token ? <Profile /> : <Login />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           <Route path='/upload-certifications' element={<UploadCertifications />} />
-          <Route path='/view-certifications/:id' element={<ViewCertifications />} />
+          <Route path='/view-certifications' element={<ViewCertifications />} />
         </Routes>
 
       </div>
