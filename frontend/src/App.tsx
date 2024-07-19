@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import './App.css';
 import Navbar from './components/navbar';
+import SidebarTutor from './components/sidebarTutor';
 import useGlobalState from './context/GlobalState';
 import Login from './pages/auth/Login/Login';
 import Home from './pages/home';
@@ -26,11 +27,15 @@ function App() {
     if (user?.role === 1) return <HomeTutor />;
     return <h1>Admin</h1>;
   };
+
+  const renderNav = () => {
+    if (user?.role === 1) return <SidebarTutor />; else return <Navbar />;
+  };
   return (
     <BrowserRouter>
       <div className="App">
         {
-          token ? <Navbar /> : null
+          token ? renderNav() : null
         }
         <Routes>
           <Route path='/' element={token ? renderHome() : <Login />} />

@@ -14,6 +14,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
+from .google_calendar import *
 # Create your views here.
 # @api_view(['POST'])
 # def register(request):
@@ -147,3 +148,82 @@ def update_visible(request):
     serializer = UserModelSerializer(instance=user)
     return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+@api_view(['GET'])
+def oauth2callback(request):
+    print(f'request 155 views {request}')
+    state = request.session.get('state')
+    print(f'state 155 views {state}')
+    flow = InstalledAppFlow.from_client_secrets_file(settings.GOOGLE_CREDENTIALS_FILE, SCOPES, state=state)
+    flow.redirect_uri = settings.GOOGLE_OAUTH2_CALLBACK_URL
+
+    authorization_response = request.build_absolute_uri()
+    print(f'authorization_response: {authorization_response}')
+
+    flow.fetch_token(authorization_response=authorization_response)
+
+    creds = flow.credentials
+    token_path = settings.GOOGLE_CREDENTIALS_DIR / 'token.json'
+    with open(token_path, 'w') as token:
+        token.write(creds.to_json())
+
+    return redirect('/api/google-calendar/events')
+
+@api_view(['GET'])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+def google_calendar_events(request):
+    print(f'view 170 {request}')
+    try:
+    #     auth_url_or_events = list_upcomming_events(request)
+    #     if isinstance(auth_url_or_events, str):  
+    #         return redirect(auth_url_or_events)
+    #     return Response(auth_url_or_events, status=status.HTTP_200_OK)
+    # except Exception as e:
+    #     return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        events = list_upcomming_events(request)
+        if isinstance(events, str):
+            print(f'view 174 events isins {events}')
+            return redirect(events)
+        return Response(events, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['POST'])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
+def google_calendar_create_event(request):
+    print(f'view 197 {request}')
+    try:
+        summary = request.data.get('summary')
+        start_time = request.data.get('start_time')
+        end_time = request.data.get('end_time')
+        timezone = request.data.get('timezone')
+        attendees = request.data.get('attendees', [])
+
+        event = create_event(summary,start_time, end_time, timezone, attendees)
+        return Response(event, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['PUT'])
+def google_calendar_update_event(request, event_id):
+    try:
+        summary = request.data.get('summary')
+        start_time = request.data.get('start_time')
+        end_time = request.data.get('end_time')
+
+        updated_event = update_event(event_id, summary, start_time, end_time)
+        return Response(updated_event, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def google_calendar_delete_event(request, event_id):
+    try:
+        delete_event(event_id)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
