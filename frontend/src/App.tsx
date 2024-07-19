@@ -12,9 +12,10 @@ import ViewCertifications from './pages/tutor/ViewCertifications';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Profile from './pages/content/Profile/Profile';
 import HomeTutor from './pages/content/HomeTutor/HomeTutor';
+import SidebarTutor from './components/sidebar';
 
 function App() {
-  const { tokenExists, token,user} = useGlobalState();
+  const { tokenExists, token, user } = useGlobalState();
 
 
   useEffect(() => {
@@ -26,16 +27,21 @@ function App() {
     if (user?.role === 1) return <HomeTutor />;
     return <h1>Admin</h1>;
   };
+
+  const renderNav = () => {
+    if (user?.role === 1) return <SidebarTutor />; else return <Navbar />;
+  };
+
   return (
     <BrowserRouter>
       <div className="App">
         {
-          token ? <Navbar/> : null
+          token ? renderNav() : null
         }
         <Routes>
-          <Route path='/' element={token ? renderHome() : <Login/>} />
-          <Route path='/home' element={token ? renderHome() : <Login/>} />
-          <Route path='/profile' element={token ? <Profile/> : <Login/> } />
+          <Route path='/' element={token ? renderHome() : <Login />} />
+          <Route path='/home' element={token ? renderHome() : <Login />} />
+          <Route path='/profile' element={token ? <Profile /> : <Login />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
           <Route path='/upload-certifications' element={<UploadCertifications />} />
