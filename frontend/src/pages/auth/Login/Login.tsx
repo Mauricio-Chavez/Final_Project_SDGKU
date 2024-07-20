@@ -1,8 +1,14 @@
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, set } from "react-hook-form";
 import authService from "../../../service/auth.service";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import useGlobalState from "../../../context/GlobalState";
+import { Input } from "@material-tailwind/react";
+import './Login.css';
+import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
+
 
 interface LoginForm {
     email: string;
@@ -13,10 +19,11 @@ const Login = () => {
     const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
     const navigate = useNavigate();
     const {setToken,setUser}= useGlobalState();
+    const [errorL, setErrorL] = useState(false);
+
 
     const handleLogin: SubmitHandler<LoginForm> = async (data) => {
         const { email, password } = data;
-        
         try {
             const res = await authService.login(email, password);
             if (res.token) {
@@ -24,36 +31,54 @@ const Login = () => {
                 setToken(true);
                 setUser(res.user);
                 navigate('/');
-            } else {
-                alert('Usuario o Contraseña incorrectos');
             }
         } catch (error) {
-            console.error('Login error', error);
-            alert('Error al iniciar sesión');
+            setErrorL(true);
+            setTimeout(() => {
+                setErrorL(false);
+            }, 4000);
         }
     };
 
+
     return (
-        <div>
-            <form onSubmit={handleSubmit(handleLogin)}>
-                <div>
-                    <input
-                        type="text"
-                        {...register('email', { required: 'Username is required' })}
-                        placeholder="Username"
-                    />
-                    {errors.email && <span>{errors.email.message}</span>}
-                </div>
-                <div>
-                    <input
-                        type="password"
-                        {...register('password', { required: 'Password is required' })}
-                        placeholder="Password"
-                    />
-                    {errors.password && <span>{errors.password.message}</span>}
-                </div>
-                <button type="submit">Login</button>
-            </form>
+        <div className="login">
+            <div className="alerts-container">
+                {errors.email && <span className="alert">{errors.email.message}</span>}
+                {errors.password && <span className="alert">{errors.password.message}</span>}
+                {errorL && <span className="alert">Invalid Credentials</span>}
+            </div>
+            <div className="form-container">
+                <h1>Login</h1>
+                <form onSubmit={handleSubmit(handleLogin)}>
+                    <div className="input-container">
+                        <Input
+                            label="Username"
+                            type="text"
+                            placeholder='Username'
+                            {...register('email', { required: 'Username is Required' })}
+                            onPointerEnterCapture={() => { }}
+                            onPointerLeaveCapture={() => { }}
+                            crossOrigin=''
+                        />
+                    </div>
+                    <div className="input-container">
+                        <Input
+                            label="Password"
+                            type="password"
+                            placeholder="Password"
+                            {...register('password', { required: 'Password is Required' })}
+                            onPointerEnterCapture={() => { }}
+                            onPointerLeaveCapture={() => { }}
+                            crossOrigin=''
+                        />
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+            <div className="img-container">
+                
+            </div>
         </div>
     );
 };
