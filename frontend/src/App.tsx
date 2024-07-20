@@ -44,8 +44,8 @@ function App() {
           <Route path='/profile' element={token ? <Profile /> : <Login />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
-          <Route path='/upload-certifications' element={<UploadCertifications />} />
-          <Route path='/view-certifications/:id' element={<ViewCertifications />} />
+          <Route path='/upload-certifications' element={token ? <UploadCertifications /> : <Login />} />
+          <Route path='/view-certifications' element={token ? <ViewCertifications /> : <Login />} />
         </Routes>
 
       </div>

@@ -5,7 +5,7 @@ interface UserM{
     first_name: string;
     last_name: string;
     role: number;
-    study_area?: string;
+    study_area?: number;
     booking?: Date;
     specialties?: string;
     hourly_rate?: number;

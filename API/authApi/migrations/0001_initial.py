@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=250, unique=True)),
                 ('password', models.CharField(max_length=128)),
                 ('role', models.IntegerField()),
-                ('study_area', models.CharField(blank=True, max_length=255, null=True)),
+                ('study_area', models.IntegerField(blank=True, null=True)),
                 ('booking', models.DateField(blank=True, null=True)),
                 ('specialties', models.TextField(blank=True, null=True)),
                 ('hourly_rate', models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True)),
