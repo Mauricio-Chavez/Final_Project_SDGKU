@@ -71,7 +71,8 @@ def list_upcomming_events(request, max_results=10):
       for event in events:
         start = event['start'].get('dateTime', event['start'].get('date'))
         meet = event.get('hangoutLink')
-        event_list.append({"start": start, "summary": event['summary'], "meet":meet, "idEvent": event['id']})
+        attendees = event.get('attendees')
+        event_list.append({"start": start, "summary": event['summary'], "meet":meet, "idEvent": event['id'], "attendees": attendees})
         #event_list.append(f"{start} - {event['summary']} - Link Meeting: {meet} - IdEvent: {event['id']}")
 
       print(events)

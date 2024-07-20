@@ -83,3 +83,14 @@ class Certifications(models.Model):
 
   def __str__(self):
     return self.name
+  
+
+class Booking(models.Model):
+  tutor_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
+
+
+  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
+
+  def __str__(self):
+    return self.date
