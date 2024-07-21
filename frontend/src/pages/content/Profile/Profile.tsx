@@ -1,8 +1,13 @@
-import { Input } from "@material-tailwind/react";
-import useGlobalState from "../../../context/GlobalState";
+import { Button, Input, Typography } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
+import useGlobalState from "../../../context/GlobalState";
 import authService from "../../../service/auth.service";
 import './Profile.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash, faX } from '@fortawesome/free-solid-svg-icons';
+import FileInput from "../../../components/FileInput/FileInput";
+import profileService from "../../../service/profile.service";
+
 
 const Profile = () => {
     const { user, setUser } = useGlobalState();
@@ -16,6 +21,8 @@ const Profile = () => {
     const [experience, setExperience] = useState(user?.experience || '');
     const [photo, setPhoto] = useState<FileList | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDelete, setIsDelete] = useState(false)
 
     useEffect(() => {
         setEmail(user?.email || '');
@@ -64,47 +71,137 @@ const Profile = () => {
             setPhotoPreview(URL.createObjectURL(e.target.files[0]));
         }
     };
+    const handleDeletePhoto = () => {
+        setPhoto(null)
+        setPhotoPreview(null)
+        setIsDelete(true)
+    }
+
+    const saveChange = async () => {
+        const obj = new FormData();
+        if (isDelete) {
+            console.log('entro a borrar')
+            try {
+                await profileService.deletePhoto();
+                setUser({
+                    ...user,
+                    photo: null
+                });
+                toggleModal();
+                window.location.reload()
+            } catch (error) {
+                console.error('Delete photo error', error);
+                alert('Error al eliminar la foto de perfil');
+            }
+        } else {
+            console.log('entro a guardar')
+            if (photo && photo[0]) {
+                obj.append('photo', photo[0]);
+            }
+
+            try {
+                await profileService.updatePhoto(obj);
+                setUser({
+                    ...user,
+                    photo: photo ? URL.createObjectURL(photo[0]) : user?.photo
+                });
+                setPhoto(null);
+                setPhotoPreview(null);
+                toggleModal();
+                window.location.reload()
+            } catch (error) {
+                console.error('Update photo error', error);
+                alert('Error al actualizar la foto de perfil');
+            }
+        }
+    }
+
 
     const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const obj = new FormData();
-        obj.append('email', email);
         obj.append('first_name', firstName);
         obj.append('last_name', lastName);
         obj.append('study_area', studyArea);
         obj.append('specialties', specialties);
         obj.append('hourly_rate', hourlyRate.toString());
         obj.append('experience', experience);
-        if (photo && photo[0]) {
-            obj.append('photo', photo[0]);
-        }
 
         try {
             await authService.updateUserInfo(obj);
             setUser({
                 ...user,
-                email,
                 first_name: firstName,
                 last_name: lastName,
                 study_area: studyArea,
                 specialties,
                 hourly_rate: hourlyRate,
                 experience,
-                photo: photo ? URL.createObjectURL(photo[0]) : user?.photo
             });
-            window.location.reload();
         } catch (error) {
             console.error('Update error', error);
             alert('Error al actualizar el perfil');
         }
     };
+
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen);
+    };
+
     return (
         <div className="profile">
-            <h1>Profile</h1>
+            <div className="flex gap-3 mb-3">
+                {isModalOpen && (
+                    <div className="fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+                        <div className="modal relative m-4 w-1/4 min-w-[25%] max-w-[25%] rounded-lg bg-white font-sans text-base font-light leading-relaxed text-blue-gray-500 antialiased shadow-2xl">
+                            <div className="title-container">
+                                <Typography variant="h4" color="black" placeholder='' className="modal-title" onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }}>Profile photo</Typography>
+                                <FontAwesomeIcon icon={faX} className="absolute top-2 right-2 size-5 text-red-500 cursor-pointer" onClick={toggleModal} />
+                            </div>
+                            <div className="relative round-image-container">
+                                {photoPreview ? (
+                                    <img className="round-image" src={photoPreview} alt="User Profile" />
+                                ) : (
+                                    <div className="placeholder-image"></div>
+                                )}
+                            </div>
+                            <div className="p-5 text-blue-gray-500 modal-footer">
+                                <div className="btn-container">
+                                    <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="red" onClick={handleDeletePhoto}><FontAwesomeIcon icon={faTrash} /> Delete</Button>
+                                    <FileInput onChange={handlePhotoChange} />
+                                    {photo && <p>Archivo seleccionado: {photo[0].name}</p>}
+                                </div>
+                                <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="green" onClick={saveChange}>Save</Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <div>
+                <Typography
+                    variant="h1"
+                    className='title'
+                    placeholder=''
+                    onPointerEnterCapture={() => { }}
+                    onPointerLeaveCapture={() => { }}
+                >
+                    Personal Information
+                </Typography>
+                <Typography
+                    variant="paragraph"
+                    className='paragraph'
+                    color="black"
+                    placeholder=''
+                    onPointerEnterCapture={() => { }}
+                    onPointerLeaveCapture={() => { }}
+                >
+                    Information about you and your educational specialty
+                </Typography>
+            </div>
             <div className="content-container">
-                <div className="img-container">
-                    <img src={photoPreview || `http://localhost:8000${user?.photo}`} alt="User Profile" />
+                <div className="round-image-container" onClick={toggleModal}>
+                    <img className="round-image" src={photoPreview || `http://localhost:8000${user?.photo}`} alt="User Profile" />
                 </div>
                 <div className="form-container">
                     <form onSubmit={handleUpdate}>
@@ -115,9 +212,9 @@ const Profile = () => {
                             value={firstName}
                             placeholder="First Name"
                             onChange={handleInputChange}
-                            crossOrigin=''
                             onPointerEnterCapture={() => { }}
                             onPointerLeaveCapture={() => { }}
+                            crossOrigin=''
                         />
                         <Input
                             label="Last Name"
@@ -126,20 +223,9 @@ const Profile = () => {
                             value={lastName}
                             placeholder="Last Name"
                             onChange={handleInputChange}
-                            crossOrigin=''
                             onPointerEnterCapture={() => { }}
                             onPointerLeaveCapture={() => { }}
-                        />
-                        <Input
-                            label="Email"
-                            type="email"
-                            name="email"
-                            value={email}
-                            placeholder="Email"
-                            onChange={handleInputChange}
                             crossOrigin=''
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
                         />
                         <Input
                             label="Study Area"
@@ -148,9 +234,9 @@ const Profile = () => {
                             value={studyArea}
                             placeholder="Study Area"
                             onChange={handleInputChange}
-                            crossOrigin=''
                             onPointerEnterCapture={() => { }}
                             onPointerLeaveCapture={() => { }}
+                            crossOrigin=''
                         />
                         <Input
                             label="Specialties"
@@ -159,9 +245,9 @@ const Profile = () => {
                             value={specialties}
                             placeholder="Specialties"
                             onChange={handleInputChange}
-                            crossOrigin=''
                             onPointerEnterCapture={() => { }}
                             onPointerLeaveCapture={() => { }}
+                            crossOrigin=''
                         />
                         <Input
                             label="Hourly Rate"
@@ -170,9 +256,9 @@ const Profile = () => {
                             value={hourlyRate}
                             placeholder="Hourly Rate"
                             onChange={handleInputChange}
-                            crossOrigin=''
                             onPointerEnterCapture={() => { }}
                             onPointerLeaveCapture={() => { }}
+                            crossOrigin=''
                         />
                         <Input
                             label="Experience"
@@ -181,15 +267,9 @@ const Profile = () => {
                             value={experience}
                             placeholder="Experience"
                             onChange={handleInputChange}
-                            crossOrigin=''
                             onPointerEnterCapture={() => { }}
                             onPointerLeaveCapture={() => { }}
-                        />
-                        <input
-                            type="file"
-                            name="photo"
-                            accept=".jpg,.png"
-                            onChange={handlePhotoChange}
+                            crossOrigin=''
                         />
                         <button type="submit">Update</button>
                     </form>

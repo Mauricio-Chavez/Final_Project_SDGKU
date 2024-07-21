@@ -1,13 +1,12 @@
-import { useForm, SubmitHandler, set } from "react-hook-form";
+import { useForm, SubmitHandler} from "react-hook-form";
 import authService from "../../../service/auth.service";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import useGlobalState from "../../../context/GlobalState";
-import { Input } from "@material-tailwind/react";
+import { Button, Input } from "@material-tailwind/react";
 import './Login.css';
 import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
+
 
 
 interface LoginForm {
@@ -49,7 +48,7 @@ const Login = () => {
                 {errorL && <span className="alert">Invalid Credentials</span>}
             </div>
             <div className="form-container">
-                <h1>Login</h1>
+                <h1 className="title">Login</h1>
                 <form onSubmit={handleSubmit(handleLogin)}>
                     <div className="input-container">
                         <Input
@@ -73,11 +72,22 @@ const Login = () => {
                             crossOrigin=''
                         />
                     </div>
-                    <button type="submit">Login</button>
+                    <Button 
+                        size="md"
+                        type="submit"
+                        placeholder=''
+                        className="btn-login"
+                        onPointerEnterCapture={() => { }}
+                        onPointerLeaveCapture={() => { }}
+                        style={{backgroundColor: '#4b0007',width: '40%'}}
+                    >
+                        Login
+                    </Button>
                 </form>
+                <Link to="/register">Don't have an account? <span className="spn-register">Register</span></Link>
             </div>
             <div className="img-container">
-                
+                <img src={`${process.env.PUBLIC_URL}/media/logo.png`} alt=""/>
             </div>
         </div>
     );

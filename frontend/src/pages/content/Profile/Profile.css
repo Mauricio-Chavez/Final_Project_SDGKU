@@ -1,15 +1,82 @@
-.content-container{
+.profile{
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    justify-content: center;
+    flex-direction: column;
+}
+.content-container {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 }
-.form-container{
+
+.profile .form-container {
     flex: 1;
 }
-.img-container{
+
+.profile .img-container {
     flex: 1;
 }
-img{
+
+.profile img {
     max-width: 100%;
 }
+
+.profile .title {
+    color: #ce9912;
+}
+
+.profile .paragraph {
+    letter-spacing: 1.5px;
+    line-height: 2;
+}
+
+.profile .title-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile .modal-title {
+    margin: 1rem auto;
+}
+
+.profile .round-image-container {
+    width: 400px;
+    height: 400px;
+    display: flex;
+    border-radius: 50%;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(236, 236, 236);
+    margin-bottom: 2rem;
+}
+
+.profile .round-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile .modal {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile .btn-container {
+    display: flex;
+    gap: 1rem;
+}
+
+.profile .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 5rem;
+}
+
