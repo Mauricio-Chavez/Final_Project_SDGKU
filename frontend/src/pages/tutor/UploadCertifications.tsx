@@ -3,6 +3,7 @@ import TutorService from '../../service/tutor/TutorService';
 import { useForm } from 'react-hook-form';
 import Certifications from '../../models/Certifications';
 import { useNavigate } from 'react-router-dom';
+import useGlobalState from '../../context/GlobalState';
 
 const UploadCertifications = () => {
   const {
@@ -11,10 +12,16 @@ const UploadCertifications = () => {
     formState: { errors },
   } = useForm<Certifications>();
   const navigate = useNavigate();
+  const { user } = useGlobalState((state) => state);
 
   const handleUploadCertificate = async (data: Certifications) => {
     const formData = new FormData();
-    formData.append('tutor_id', data.tutor_id.toString());
+    if (user) {
+      formData.append('tutor_id', user.id.toString());
+    } else {
+      alert('User not logged in');
+      navigate('/login');
+    }
     formData.append('name', data.name);
     formData.append('route_file', data.route_file[0]);
 
@@ -22,7 +29,7 @@ const UploadCertifications = () => {
       const res = await TutorService.uploadCertifications(formData);
       if (res) {
         alert('Certificate uploaded successfully');
-        navigate('/view-certifications/' + res.tutor_id);
+        navigate('/view-certifications');
       } else {
         alert('Error uploading certificate');
       }
@@ -36,16 +43,7 @@ const UploadCertifications = () => {
       <h1>Upload Certifications</h1>
       <form onSubmit={handleSubmit(handleUploadCertificate)}>
         <div>
-          <label htmlFor='tutor_id'>Tutor ID</label>
-          <input
-            type='number'
-            {...register('tutor_id', { required: 'Tutor id is required' })}
-            placeholder='Tutor id'
-          />
-          {errors.tutor_id && <span>{errors.tutor_id.message}</span>}
-        </div>
-        <div>
-          <label htmlFor='name'>Name</label>
+          <label htmlFor='name'>Name </label>
           <input
             type='text'
             {...register('name', { required: 'Name is required' })}
@@ -54,7 +52,6 @@ const UploadCertifications = () => {
           {errors.name && <span>{errors.name.message}</span>}
         </div>
         <div>
-          <label htmlFor='route_file'>File</label>
           <input
             type='file'
             {...register('route_file', { required: 'File is required' })}

@@ -31,7 +31,7 @@ class User(AbstractUser, PermissionsMixin):
   email = models.EmailField(max_length=250, unique=True)
   password = models.CharField(max_length=128)
   role = models.IntegerField()
-  study_area = models.CharField(max_length=255, null=True, blank=True)
+  study_area = models.IntegerField(null=True, blank=True)
   booking = models.DateField(null=True, blank=True)
   specialties = models.TextField(null=True, blank=True)
   hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)

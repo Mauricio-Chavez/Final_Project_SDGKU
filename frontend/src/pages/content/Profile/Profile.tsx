@@ -1,4 +1,5 @@
 import { Button, Input, Typography } from "@material-tailwind/react";
+import { Select, Option } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
 import useGlobalState from "../../../context/GlobalState";
 import authService from "../../../service/auth.service";
@@ -8,6 +9,7 @@ import { faEdit, faTrash, faX,faSave } from '@fortawesome/free-solid-svg-icons';
 import FileInput from "../../../components/FileInput/FileInput";
 import profileService from "../../../service/profile.service";
 
+import { generalData } from "../../../common/generalData";
 
 const Profile = () => {
     const { user, setUser } = useGlobalState();
@@ -23,6 +25,9 @@ const Profile = () => {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDelete, setIsDelete] = useState(false)
+    const [availability, setAvailability] = useState<any>(user?.availability || {});
+    const [newDay, setNewDay] = useState('');
+
 
     useEffect(() => {
         setEmail(user?.email || '');
@@ -32,6 +37,7 @@ const Profile = () => {
         setSpecialties(user?.specialties || '');
         setHourlyRate(user?.hourly_rate || 0);
         setExperience(user?.experience || '');
+        setAvailability(user?.availability || {});
         setPhoto(null);
         setPhotoPreview(user?.photo ? `http://localhost:8000${user.photo}` : null);
     }, [user]);
@@ -47,9 +53,6 @@ const Profile = () => {
                 break;
             case 'last_name':
                 setLastName(value);
-                break;
-            case 'study_area':
-                setStudyArea(value);
                 break;
             case 'specialties':
                 setSpecialties(value);
@@ -117,6 +120,40 @@ const Profile = () => {
     }
 
 
+    const handleSelectChange = (value: string | undefined) => {
+        if (value) {
+            setStudyArea(value);
+        }
+    };
+
+    const handleAvailabilityChange = (day: string, hours: string) => {
+        setAvailability({
+            ...availability,
+            [day]: hours
+        });
+    };
+
+    const handleAddDay = () => {
+        if (newDay && !availability[newDay]) {
+            setAvailability((prev: any) => ({
+                ...prev,
+                [newDay]: ''
+            }));
+            setNewDay('');
+        } else {
+            alert('This day is already added.');
+        }
+    };
+
+    const handleRemoveDay = (day: string) => {
+        setAvailability((prev: any) => {
+            const newAvailability = { ...prev };
+            delete newAvailability[day];
+            return newAvailability;
+        });
+    };
+
+
     const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -127,6 +164,7 @@ const Profile = () => {
         obj.append('specialties', specialties);
         obj.append('hourly_rate', hourlyRate.toString());
         obj.append('experience', experience);
+        obj.append('availability', JSON.stringify(availability));
 
         try {
             await authService.updateUserInfo(obj);
@@ -138,6 +176,7 @@ const Profile = () => {
                 specialties,
                 hourly_rate: hourlyRate,
                 experience,
+                availability,
             });
         } catch (error) {
             console.error('Update error', error);
@@ -207,7 +246,7 @@ const Profile = () => {
                     <img className="round-image" src={photoPreview || `http://localhost:8000${user?.photo}`} alt="User Profile" />
                 </div>
                 <div className="form-container">
-                    <form onSubmit={handleUpdate}>
+                    <form className="flex-col" onSubmit={handleUpdate}>
                         <Input
                             label="First Name"
                             type="text"
@@ -230,7 +269,21 @@ const Profile = () => {
                             onPointerLeaveCapture={() => { }}
                             crossOrigin=''
                         />
-                        <Input
+                        <Select
+                            label='Study Area'
+                            placeholder='Select Study Area'
+                            value={generalData.study_area.find(obj => obj.value === Number(studyArea))?.value.toString()}
+                            onChange={handleSelectChange}
+                            onPointerEnterCapture={() => { }}
+                            onPointerLeaveCapture={() => { }}
+                        >
+                            {generalData.study_area.map((option) => (
+                                <Option key={option.value} value={option.value.toString()}>
+                                    {option.label}
+                                </Option>
+                            ))}
+                        </Select>
+                        {/* <Input
                             label="Study Area"
                             type="text"
                             name="study_area"
@@ -241,6 +294,7 @@ const Profile = () => {
                             onPointerLeaveCapture={() => { }}
                             crossOrigin=''
                         />
+                        /> */}
                         <Input
                             label="Specialties"
                             type="text"
@@ -275,6 +329,58 @@ const Profile = () => {
                             crossOrigin=''
                         />
                         <button type="submit">Update</button>
+                        <div className="relative w-full min-w-[200px] h-full p-2">
+                            <label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+                                Availability</label>
+                            {Object.keys(availability).map((day) => (
+                                <div key={day} className="availability-item flex row mt-2">
+                                    <Input
+                                        label="Day"
+                                        type="text"
+                                        value={day}
+                                        crossOrigin=''
+                                        onPointerEnterCapture={() => { }}
+                                        onPointerLeaveCapture={() => { }}
+                                    />
+                                    <Input
+                                        label="Hours (please 24 hours format)"
+                                        type="text"
+                                        value={availability[day]}
+                                        onChange={(e) => handleAvailabilityChange(day, e.target.value)}
+                                        crossOrigin=''
+                                        onPointerEnterCapture={() => { }}
+                                        onPointerLeaveCapture={() => { }}
+                                    />
+                                    <button className="select-none rounded-lg bg-red-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-red-500/20 transition-all hover:shadow-lg hover:shadow-red-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2" type="button" onClick={() => handleRemoveDay(day)}>Remove</button>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="relative w-full min-w-[200px] h-full flex row">
+                            <Select
+                                label='Add Day'
+                                placeholder='Select a Day'
+                                value={newDay}
+                                onChange={(value) => setNewDay(value ? value.toString() : '')}
+                                onPointerEnterCapture={() => { }}
+                                onPointerLeaveCapture={() => { }}
+                            >
+                                {generalData.days.map((option) => (
+                                    <Option key={option.value} value={option.value}>
+                                        {option.label}
+                                    </Option>
+                                ))}
+                            </Select>
+                            <button onClick={handleAddDay} className="ml-2 mr-2 select-none rounded-lg bg-green-500 py-3 px-9 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-green-500/20 transition-all hover:shadow-lg hover:shadow-green-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">Add</button>
+                        </div>
+                        <div className="relative h-10 w-72 min-w-[200px] p-2">
+                            <input
+                                type="file"
+                                name="photo"
+                                accept=".jpg,.png"
+                                onChange={handlePhotoChange}
+                            />
+                        </div>
+                        <button type="submit" className="select-none rounded-lg bg-amber-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-black shadow-md shadow-amber-500/20 transition-all hover:shadow-lg hover:shadow-amber-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">Update</button>
                     </form>
                 </div>
             </div>

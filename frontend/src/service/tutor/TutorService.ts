@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import useGlobalState from '../../context/GlobalState';
 
 class TutorService {
   async uploadCertifications(obj: FormData): Promise<any>{
@@ -19,9 +20,14 @@ class TutorService {
     }
   }
 
-  async getCertifications(id: number):Promise<any>{
+  async getCertifications(): Promise<any>{
     try {
-      const response: AxiosResponse = await axios.get("http://localhost:8000/api/view_certifications/" + id);
+      const { user } = useGlobalState.getState();
+      console.log('user', user);
+      if (!user || !user.id) {
+        throw new Error('User is not logged in or missing user ID');
+      }
+      const response: AxiosResponse = await axios.get(`http://localhost:8000/api/view_certifications/${user.id}`);
       return response.data;
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
