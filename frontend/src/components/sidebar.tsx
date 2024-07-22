@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import useGlobalState from "../context/GlobalState";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 
 
 const SidebarTutor: React.FC = () => {
@@ -9,7 +11,9 @@ const SidebarTutor: React.FC = () => {
       <aside id="logo-sidebar" className="top-0 left-0 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
         <div className="h-full px-3 py-4 overflow-y-auto bg-[#4b0007]">
           <Link to='profile' className="flex items-center mb-5 justify-center gap-5">
-            <img src={`http://localhost:8000/${user?.photo}`} className="h-6 me-3 sm:h-7 rounded-full" alt="Profile Photo" />
+            {
+              user?.photo ? <img src={`http://localhost:8000/${user?.photo}`} className="h-6 me-3 sm:h-7 rounded-full" alt="Profile Photo" /> : <div className='bg-[#ECECEC] rounded-full w-7 h-7'><FontAwesomeIcon icon={faUser} className="edit-icon" size="1x" color='#b5b5b5'/></div>
+            }
             <span className="self-center text-xl font-semibold whitespace-nowrap text-white">{`${user?.first_name}`}</span>
           </Link>
           <ul className="space-y-2 font-medium">

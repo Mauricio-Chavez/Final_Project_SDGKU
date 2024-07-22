@@ -5,11 +5,12 @@ import useGlobalState from "../../../context/GlobalState";
 import authService from "../../../service/auth.service";
 import './Profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faX,faSave } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faX,faSave, faUser } from '@fortawesome/free-solid-svg-icons';
 import FileInput from "../../../components/FileInput/FileInput";
 import profileService from "../../../service/profile.service";
 
 import { generalData } from "../../../common/generalData";
+import { set } from "react-hook-form";
 
 const Profile = () => {
     const { user, setUser } = useGlobalState();
@@ -70,6 +71,7 @@ const Profile = () => {
 
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
+            console.log(e.target.files)
             setPhoto(e.target.files);
             setPhotoPreview(URL.createObjectURL(e.target.files[0]));
         }
@@ -78,6 +80,10 @@ const Profile = () => {
         setPhoto(null)
         setPhotoPreview(null)
         setIsDelete(true)
+    }
+    const closeModal=()=>{
+        setPhotoPreview(`http://localhost:8000${user?.photo}`)
+        toggleModal()
     }
 
     const saveChange = async () => {
@@ -153,7 +159,6 @@ const Profile = () => {
         });
     };
 
-
     const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -196,13 +201,13 @@ const Profile = () => {
                         <div className="modal relative m-4 w-1/4 min-w-[25%] max-w-[25%] rounded-lg bg-white font-sans text-base font-light leading-relaxed text-blue-gray-500 antialiased shadow-2xl">
                             <div className="title-container">
                                 <Typography variant="h4" color="black" placeholder='' className="modal-title" onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }}>Profile photo</Typography>
-                                <FontAwesomeIcon icon={faX} className="absolute top-2 right-2 size-5 text-red-500 cursor-pointer" onClick={toggleModal} />
+                                <FontAwesomeIcon icon={faX} className="absolute top-2 right-2 size-5 text-red-500 cursor-pointer" onClick={closeModal} />
                             </div>
                             <div className="relative round-image-container">
                                 {photoPreview ? (
-                                    <img className="round-image" src={photoPreview} alt="User Profile" />
+                                    <img className="round-image" src={photoPreview}/>
                                 ) : (
-                                    <div className="placeholder-image"></div>
+                                    <FontAwesomeIcon icon={faUser} className="edit-icon" size="10x" color="#b5b5b5"/>
                                 )}
                             </div>
                             <div className="btns-container">
@@ -242,59 +247,53 @@ const Profile = () => {
                 </Typography>
             </div>
             <div className="content-container">
-                <div className="round-image-container" onClick={toggleModal}>
-                    <img className="round-image" src={photoPreview || `http://localhost:8000${user?.photo}`} alt="User Profile" />
-                </div>
                 <div className="form-container">
                     <form className="flex-col" onSubmit={handleUpdate}>
-                        <Input
-                            label="First Name"
-                            type="text"
-                            name="first_name"
-                            value={firstName}
-                            placeholder="First Name"
-                            onChange={handleInputChange}
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                            crossOrigin=''
-                        />
-                        <Input
-                            label="Last Name"
-                            type="text"
-                            name="last_name"
-                            value={lastName}
-                            placeholder="Last Name"
-                            onChange={handleInputChange}
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                            crossOrigin=''
-                        />
-                        <Select
-                            label='Study Area'
-                            placeholder='Select Study Area'
-                            value={generalData.study_area.find(obj => obj.value === Number(studyArea))?.value.toString()}
-                            onChange={handleSelectChange}
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                        >
-                            {generalData.study_area.map((option) => (
-                                <Option key={option.value} value={option.value.toString()}>
-                                    {option.label}
-                                </Option>
-                            ))}
-                        </Select>
-                        {/* <Input
-                            label="Study Area"
-                            type="text"
-                            name="study_area"
-                            value={studyArea}
-                            placeholder="Study Area"
-                            onChange={handleInputChange}
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                            crossOrigin=''
-                        />
-                        /> */}
+                        <div className="general-info">
+                            <Input
+                                label="First Name"
+                                type="text"
+                                name="first_name"
+                                value={firstName}
+                                placeholder="First Name"
+                                onChange={handleInputChange}
+                                onPointerEnterCapture={() => { }}
+                                onPointerLeaveCapture={() => { }}
+                                crossOrigin=''
+                            />
+                            <div className="round-image-container" onClick={toggleModal}>
+                                {photoPreview ? (
+                                    <img className="round-image" src={photoPreview}/>
+                                ) : (
+                                    <FontAwesomeIcon icon={faUser} className="edit-icon" size="10x" color="#b5b5b5"/>
+                                )}
+                            </div>
+                            <Input
+                                label="Last Name"
+                                type="text"
+                                name="last_name"
+                                value={lastName}
+                                placeholder="Last Name"
+                                onChange={handleInputChange}
+                                onPointerEnterCapture={() => { }}
+                                onPointerLeaveCapture={() => { }}
+                                crossOrigin=''
+                            />
+                            <Select
+                                label='Study Area'
+                                placeholder='Select Study Area'
+                                value={generalData.study_area.find(obj => obj.value === Number(studyArea))?.value.toString()}
+                                onChange={handleSelectChange}
+                                onPointerEnterCapture={() => { }}
+                                onPointerLeaveCapture={() => { }}
+                            >
+                                {generalData.study_area.map((option) => (
+                                    <Option key={option.value} value={option.value.toString()}>
+                                        {option.label}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
                         <Input
                             label="Specialties"
                             type="text"
@@ -328,7 +327,6 @@ const Profile = () => {
                             onPointerLeaveCapture={() => { }}
                             crossOrigin=''
                         />
-                        <button type="submit">Update</button>
                         <div className="relative w-full min-w-[200px] h-full p-2">
                             <label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
                                 Availability</label>
@@ -371,14 +369,6 @@ const Profile = () => {
                                 ))}
                             </Select>
                             <button onClick={handleAddDay} className="ml-2 mr-2 select-none rounded-lg bg-green-500 py-3 px-9 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-green-500/20 transition-all hover:shadow-lg hover:shadow-green-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">Add</button>
-                        </div>
-                        <div className="relative h-10 w-72 min-w-[200px] p-2">
-                            <input
-                                type="file"
-                                name="photo"
-                                accept=".jpg,.png"
-                                onChange={handlePhotoChange}
-                            />
                         </div>
                         <button type="submit" className="select-none rounded-lg bg-amber-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-black shadow-md shadow-amber-500/20 transition-all hover:shadow-lg hover:shadow-amber-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">Update</button>
                     </form>
