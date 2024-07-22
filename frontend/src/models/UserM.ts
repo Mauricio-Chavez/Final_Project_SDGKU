@@ -5,7 +5,7 @@ interface UserM{
     first_name: string;
     last_name: string;
     role: number;
-    study_area?: string;
+    study_area?: number;
     booking?: Date;
     specialties?: string;
     hourly_rate?: number;
@@ -13,8 +13,8 @@ interface UserM{
     availability?: number[];
     photo?: any;
     messages?: number;
-    createdAt: Date;
-    updatedAt: Date;
+    created_at: Date;
+    updated_at: Date;
 }
 
 export default UserM;
