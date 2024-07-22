@@ -5,7 +5,7 @@ import { faEdit } from '@fortawesome/free-solid-svg-icons';
 
 
 
-const FileInput = ({ onChange }:any) => {
+const FileInput = ({ onChange}:any) => {
     return (
         <div className="file-input-container">
             <input

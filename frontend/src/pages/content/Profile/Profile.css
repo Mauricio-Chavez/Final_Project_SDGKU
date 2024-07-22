@@ -80,3 +80,12 @@
     gap: 5rem;
 }
 
+.bold{
+    font-weight: bold;
+}
+
+.btns-container{
+    display: flex;
+    flex-direction: column;
+}
+

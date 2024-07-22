@@ -4,7 +4,7 @@ import useGlobalState from "../../../context/GlobalState";
 import authService from "../../../service/auth.service";
 import './Profile.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faX } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faX,faSave } from '@fortawesome/free-solid-svg-icons';
 import FileInput from "../../../components/FileInput/FileInput";
 import profileService from "../../../service/profile.service";
 
@@ -166,13 +166,16 @@ const Profile = () => {
                                     <div className="placeholder-image"></div>
                                 )}
                             </div>
-                            <div className="p-5 text-blue-gray-500 modal-footer">
-                                <div className="btn-container">
-                                    <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="red" onClick={handleDeletePhoto}><FontAwesomeIcon icon={faTrash} /> Delete</Button>
-                                    <FileInput onChange={handlePhotoChange} />
-                                    {photo && <p>Archivo seleccionado: {photo[0].name}</p>}
+                            <div className="btns-container">
+                                {photo && <p className="file-select"><span className="bold">File:</span> {photo[0].name}</p>}
+                                <div className="p-5 text-blue-gray-500 modal-footer">
+                                    <div className="btn-container">
+                                        <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="red" onClick={handleDeletePhoto}><FontAwesomeIcon icon={faTrash} /> Delete</Button>
+                                        <FileInput onChange={handlePhotoChange} />
+                                        
+                                    </div>
+                                    <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="green" onClick={saveChange}><FontAwesomeIcon icon={faSave} />Save</Button>
                                 </div>
-                                <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="green" onClick={saveChange}>Save</Button>
                             </div>
                         </div>
                     </div>
