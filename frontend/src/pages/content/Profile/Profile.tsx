@@ -1,14 +1,19 @@
-import { Input, Select, Option } from "@material-tailwind/react";
-import useGlobalState from "../../../context/GlobalState";
+import { Button, Input, Typography } from "@material-tailwind/react";
+import { Select, Option } from "@material-tailwind/react";
 import { useState, useEffect } from "react";
+import useGlobalState from "../../../context/GlobalState";
 import authService from "../../../service/auth.service";
 import './Profile.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faX,faSave, faUser, faPlus } from '@fortawesome/free-solid-svg-icons';
+import FileInput from "../../../components/FileInput/FileInput";
+import profileService from "../../../service/profile.service";
+
 import { generalData } from "../../../common/generalData";
 
 const Profile = () => {
     const { user, setUser } = useGlobalState();
 
-    const [email, setEmail] = useState(user?.email || '');
     const [firstName, setFirstName] = useState(user?.first_name || '');
     const [lastName, setLastName] = useState(user?.last_name || '');
     const [studyArea, setStudyArea] = useState(user?.study_area || '');
@@ -17,12 +22,16 @@ const Profile = () => {
     const [experience, setExperience] = useState(user?.experience || '');
     const [photo, setPhoto] = useState<FileList | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDelete, setIsDelete] = useState(false)
     const [availability, setAvailability] = useState<any>(user?.availability || {});
     const [newDay, setNewDay] = useState('');
+    const [alsuccess,setAlsuccess] = useState<string | null>(null)
+    const [alerror,setAlerror] = useState<string | null>(null)
+    
 
 
     useEffect(() => {
-        setEmail(user?.email || '');
         setFirstName(user?.first_name || '');
         setLastName(user?.last_name || '');
         setStudyArea(user?.study_area || '');
@@ -37,9 +46,6 @@ const Profile = () => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         switch (name) {
-            case 'email':
-                setEmail(value);
-                break;
             case 'first_name':
                 setFirstName(value);
                 break;
@@ -62,10 +68,62 @@ const Profile = () => {
 
     const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
+            console.log(e.target.files)
             setPhoto(e.target.files);
             setPhotoPreview(URL.createObjectURL(e.target.files[0]));
         }
     };
+    const handleDeletePhoto = () => {
+        setPhoto(null)
+        setPhotoPreview(null)
+        setIsDelete(true)
+    }
+    const closeModal=()=>{
+        setPhotoPreview(`http://localhost:8000${user?.photo}`)
+        toggleModal()
+    }
+
+    const saveChange = async () => {
+        const obj = new FormData();
+        if (isDelete) {
+            try {
+                await profileService.deletePhoto();
+                setUser({
+                    ...user,
+                    photo: null
+                });
+                toggleModal();
+                window.location.reload()
+            } catch (error) {
+                setAlerror('Error deleting the photo, the photo may not exist or the server is having problems.')
+                setTimeout(() => {
+                    setAlerror(null);
+                }, 5000);
+                
+            }
+        } else {
+            if (photo && photo[0]) {
+                obj.append('photo', photo[0]);
+            }
+            try {
+                await profileService.updatePhoto(obj);
+                setUser({
+                    ...user,
+                    photo: photo ? URL.createObjectURL(photo[0]) : user?.photo
+                });
+                setPhoto(null);
+                setPhotoPreview(null);
+                toggleModal();
+                window.location.reload()
+            } catch (error) {
+                setAlerror('Error updating photo ')
+                setTimeout(() => {
+                    setAlerror(null);
+                }, 5000);
+            }
+        }
+    }
+
 
     const handleSelectChange = (value: string | undefined) => {
         if (value) {
@@ -88,7 +146,10 @@ const Profile = () => {
             }));
             setNewDay('');
         } else {
-            alert('This day is already added.');
+            setAlerror('The schedule for this day is already defined')
+            setTimeout(() => {
+                setAlerror(null);
+            }, 5000);
         }
     };
 
@@ -100,12 +161,10 @@ const Profile = () => {
         });
     };
 
-
     const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const obj = new FormData();
-        obj.append('email', email);
         obj.append('first_name', firstName);
         obj.append('last_name', lastName);
         obj.append('study_area', studyArea);
@@ -113,15 +172,11 @@ const Profile = () => {
         obj.append('hourly_rate', hourlyRate.toString());
         obj.append('experience', experience);
         obj.append('availability', JSON.stringify(availability));
-        if (photo && photo[0]) {
-            obj.append('photo', photo[0]);
-        }
 
         try {
             await authService.updateUserInfo(obj);
             setUser({
                 ...user,
-                email,
                 first_name: firstName,
                 last_name: lastName,
                 study_area: studyArea,
@@ -129,81 +184,155 @@ const Profile = () => {
                 hourly_rate: hourlyRate,
                 experience,
                 availability,
-                photo: photo ? URL.createObjectURL(photo[0]) : user?.photo
             });
-            window.location.reload();
+            setAlsuccess('Profile updated correctly')
+            setTimeout(() => {
+                setAlsuccess(null)
+            }, 5000);
         } catch (error) {
-            console.error('Update error', error);
-            alert('Error al actualizar el perfil');
+            setAlerror('Error updating profile');
+            setTimeout(() => {
+                setAlerror(null);
+            }, 5000);
         }
     };
+
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen);
+    };
+
     return (
         <div className="profile">
-            <h1>Profile</h1>
-            <div className="content-container">
-                <div className="img-container">
-                    <img src={photoPreview || `http://localhost:8000${user?.photo}`} alt="User Profile" />
-                </div>
-                <div className="form-container">
-                    <form className="flex-col" onSubmit={handleUpdate}>
-                        <Input
-                            label="First Name"
-                            type="text"
-                            name="first_name"
-                            value={firstName}
-                            placeholder="First Name"
-                            onChange={handleInputChange}
-                            crossOrigin=''
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                        />
-                        <Input
+            <div className="alerts-container">
+                {alsuccess ? <span className="alert-success"> {alsuccess} </span> : null}
+                {alerror ? <span className="alert-error"> {alerror} </span> : null}
+            </div>
+            <div className="flex gap-3 mb-3">
+                {isModalOpen && (
+                    <div className="fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-sm transition-opacity duration-300">
+                        <div className="modal relative m-4 w-1/4 min-w-[25%] max-w-[25%] rounded-lg bg-white font-sans text-base font-light leading-relaxed text-blue-gray-500 antialiased shadow-2xl">
+                            <div className="title-container">
+                                <Typography variant="h4" color="black" placeholder='' className="modal-title" onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }}>Profile photo</Typography>
+                                <FontAwesomeIcon icon={faX} className="absolute top-2 right-2 size-5 text-red-500 cursor-pointer" onClick={closeModal} />
+                            </div>
+                            <div className="relative round-image-container">
+                                {photoPreview ? (
+                                    <img className="round-image" src={photoPreview}/>
+                                ) : (
+                                    <FontAwesomeIcon icon={faUser} className="edit-icon" size="10x" color="#b5b5b5"/>
+                                )}
+                            </div>
+                            <div className="btns-container">
+                                {photo && <p className="file-select"><span className="bold">File:</span> {photo[0].name}</p>}
+                                <div className="p-5 text-blue-gray-500 modal-footer">
+                                    <div className="btn-container">
+                                        <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="red" onClick={handleDeletePhoto}><FontAwesomeIcon icon={faTrash} /> Delete</Button>
+                                        <FileInput onChange={handlePhotoChange} />
+                                        
+                                    </div>
+                                    <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="green" onClick={saveChange}><FontAwesomeIcon icon={faSave} />Save</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+            <div>
+                <Typography
+                    variant="h1"
+                    className='title'
+                    placeholder=''
+                    onPointerEnterCapture={() => { }}
+                    onPointerLeaveCapture={() => { }}
+                >
+                    Personal Information
+                </Typography>
+                <Typography
+                    variant="paragraph"
+                    className='paragraph'
+                    color="black"
+                    placeholder=''
+                    onPointerEnterCapture={() => { }}
+                    onPointerLeaveCapture={() => { }}
+                >
+                    Information about you and your educational specialty
+                </Typography>
+            </div>
+            <form onSubmit={handleUpdate}>
+                <div className="general-info">
+                <Typography
+                    variant="h4"
+                    className='title-section'
+                    color="white"
+                    placeholder=''
+                    onPointerEnterCapture={() => { }}
+                    onPointerLeaveCapture={() => { }}
+                >
+                    General Information
+                </Typography>
+                    <div className="first-container-general">
+                        <div className="name-container">
+                            <Input
+                                label="First Name"
+                                type="text"
+                                name="first_name"
+                                value={firstName}
+                                placeholder="First Name"
+                                className="first-name"
+                                onChange={handleInputChange}
+                                onPointerEnterCapture={() => { }}
+                                onPointerLeaveCapture={() => { }}
+                                crossOrigin=''
+                            />
+                            <Input
                             label="Last Name"
                             type="text"
                             name="last_name"
                             value={lastName}
                             placeholder="Last Name"
                             onChange={handleInputChange}
+                            onPointerEnterCapture={() => { }}
+                            onPointerLeaveCapture={() => { }}
                             crossOrigin=''
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                        />
-                        <Input
-                            label="Email"
-                            type="email"
-                            name="email"
-                            value={email}
-                            placeholder="Email"
-                            onChange={handleInputChange}
-                            crossOrigin=''
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                        />
-                        <Select
-                            label='Study Area'
-                            placeholder='Select Study Area'
-                            value={generalData.study_area.find(obj => obj.value === Number(studyArea))?.value.toString()}
-                            onChange={handleSelectChange}
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                        >
-                            {generalData.study_area.map((option) => (
-                                <Option key={option.value} value={option.value.toString()}>
-                                    {option.label}
-                                </Option>
-                            ))}
-                        </Select>
-                        {/* <Input
-                            label="Study Area"
-                            type="text"
-                            name="study_area"
-                            value={studyArea}
-                            placeholder="Study Area"
-                            onChange={handleInputChange}
-                            crossOrigin=''
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
-                        /> */}
+                            />
+                            <Select
+                                label='Study Area'
+                                placeholder='Select Study Area'
+                                value={generalData.study_area.find(obj => obj.value === Number(studyArea))?.value.toString()}
+                                onChange={handleSelectChange}
+                                onPointerEnterCapture={() => { }}
+                                onPointerLeaveCapture={() => { }}
+                            >
+                                {generalData.study_area.map((option) => (
+                                    <Option key={option.value} value={option.value.toString()}>
+                                        {option.label}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+                        <div className="round-image-container resize" onClick={toggleModal}>
+                            {photoPreview ? (
+                                <img className="round-image" src={photoPreview}/>
+                            ) : (
+                                <FontAwesomeIcon icon={faUser} className="edit-icon" size="5x" color="#b5b5b5"/>
+                            )}
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+                <div className="academic-container">
+                    <Typography
+                        variant="h4"
+                        className='title-section'
+                        color="white"
+                        placeholder=''
+                        onPointerEnterCapture={() => { }}
+                        onPointerLeaveCapture={() => { }}
+                    >
+                        Academic Speciality
+                    </Typography>
+                    <div className="academic-info"> 
                         <Input
                             label="Specialties"
                             type="text"
@@ -211,20 +340,9 @@ const Profile = () => {
                             value={specialties}
                             placeholder="Specialties"
                             onChange={handleInputChange}
-                            crossOrigin=''
                             onPointerEnterCapture={() => { }}
                             onPointerLeaveCapture={() => { }}
-                        />
-                        <Input
-                            label="Hourly Rate"
-                            type="number"
-                            name="hourly_rate"
-                            value={hourlyRate}
-                            placeholder="Hourly Rate"
-                            onChange={handleInputChange}
                             crossOrigin=''
-                            onPointerEnterCapture={() => { }}
-                            onPointerLeaveCapture={() => { }}
                         />
                         <Input
                             label="Experience"
@@ -233,15 +351,38 @@ const Profile = () => {
                             value={experience}
                             placeholder="Experience"
                             onChange={handleInputChange}
-                            crossOrigin=''
                             onPointerEnterCapture={() => { }}
                             onPointerLeaveCapture={() => { }}
+                            crossOrigin=''
                         />
-                        <div className="relative w-full min-w-[200px] h-full p-2">
-                            <label className="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
-                                Availability</label>
+                        <Input
+                            label="Hourly Rate"
+                            type="number"
+                            name="hourly_rate"
+                            value={hourlyRate}
+                            placeholder="Hourly Rate"
+                            onChange={handleInputChange}
+                            onPointerEnterCapture={() => { }}
+                            onPointerLeaveCapture={() => { }}
+                            crossOrigin=''
+                        />
+                    </div>
+                </div>
+                <div className="availability-section">
+                    <Typography
+                            variant="h4"
+                            className='title-section'
+                            color="white"
+                            placeholder=''
+                            onPointerEnterCapture={() => { }}
+                            onPointerLeaveCapture={() => { }}
+                    >
+                        Availability
+                    </Typography>
+                    <div className="availability-container">
+                        <div className="availability-info">
                             {Object.keys(availability).map((day) => (
-                                <div key={day} className="availability-item flex row mt-2">
+                                <div key={day} className="day-container">
                                     <Input
                                         label="Day"
                                         type="text"
@@ -259,11 +400,11 @@ const Profile = () => {
                                         onPointerEnterCapture={() => { }}
                                         onPointerLeaveCapture={() => { }}
                                     />
-                                    <button className="select-none rounded-lg bg-red-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-red-500/20 transition-all hover:shadow-lg hover:shadow-red-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none ml-2" type="button" onClick={() => handleRemoveDay(day)}>Remove</button>
+                                    <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="red" onClick={() => handleRemoveDay(day)}><FontAwesomeIcon icon={faTrash} /></Button>
                                 </div>
                             ))}
                         </div>
-                        <div className="relative w-full min-w-[200px] h-full flex row">
+                        <div className="add-day">
                             <Select
                                 label='Add Day'
                                 placeholder='Select a Day'
@@ -278,20 +419,14 @@ const Profile = () => {
                                     </Option>
                                 ))}
                             </Select>
-                            <button onClick={handleAddDay} className="ml-2 mr-2 select-none rounded-lg bg-green-500 py-3 px-9 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-green-500/20 transition-all hover:shadow-lg hover:shadow-green-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">Add</button>
+                            <Button onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="green" onClick={handleAddDay}><FontAwesomeIcon icon={faPlus}/></Button>
                         </div>
-                        <div className="relative h-10 w-72 min-w-[200px] p-2">
-                            <input
-                                type="file"
-                                name="photo"
-                                accept=".jpg,.png"
-                                onChange={handlePhotoChange}
-                            />
-                        </div>
-                        <button type="submit" className="select-none rounded-lg bg-amber-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-black shadow-md shadow-amber-500/20 transition-all hover:shadow-lg hover:shadow-amber-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">Update</button>
-                    </form>
+                    </div>
                 </div>
-            </div>
+                <div className="btn-cont"> 
+                    <Button className="btn-save" onPointerEnterCapture={() => { }} onPointerLeaveCapture={() => { }} placeholder='' color="green" type="submit"><FontAwesomeIcon icon={faSave}/> Save</Button>
+                </div>
+            </form>
         </div>
     );
 };

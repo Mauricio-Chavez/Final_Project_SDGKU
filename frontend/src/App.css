@@ -1,5 +1,8 @@
 .App {
   text-align: center;
+  display: flex;
+  flex-direction: row;
+  
 }
 
 .App-logo {
@@ -36,3 +39,11 @@
     transform: rotate(360deg);
   }
 }
+
+:root{
+  --primary: #4b0007;
+  --secondary: #b27f00;
+  --secondary-var:#ce9912;
+}
+
+
