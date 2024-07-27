@@ -6,15 +6,15 @@ interface UserM{
     last_name: string;
     role: number;
     study_area?: number;
-    booking?: Date;
     specialties?: string;
     hourly_rate?: number;
     experience?: string;
     availability?: number[];
     photo?: any;
-    messages?: number;
-    created_at: Date;
-    updated_at: Date;
+    is_visible: boolean;
+    gender: number;
+    age: number;
+    punctuation: number;
 }
 
 export default UserM;

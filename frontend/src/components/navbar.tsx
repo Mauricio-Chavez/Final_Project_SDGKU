@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import useGlobalState from "../context/GlobalState";
 
 const Navbar: React.FC = () => {
-  const {logout ,token} = useGlobalState();
+  const { logout, token } = useGlobalState();
   return (
     <div className="navbar">
       <h1>menu here!</h1>
@@ -18,7 +18,8 @@ const Navbar: React.FC = () => {
       }
       <Link to="/profile">Profile</Link>
       <Link to="/upload-certifications">Upload Certifications</Link>
-      <Button 
+      <Link to="/bookings">Bookings</Link>
+      <Button
         placeholder=''
         color="red"
         onPointerEnterCapture={() => { }}

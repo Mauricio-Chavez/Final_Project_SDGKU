@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
-from .serializers import UserModelSerializer, CertificationSerializer
-from .models.user import Certifications
+from .serializers import UserModelSerializer, CertificationSerializer, BookingSerializer
+from .models.user import Certifications, Booking
 import os
 from .models.user import User
 from rest_framework.authtoken.models import Token
@@ -15,6 +15,8 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.conf import settings
 from .google_calendar import *
+from rest_framework.parsers import JSONParser
+import json
 # Create your views here.
 # @api_view(['POST'])
 # def register(request):
@@ -34,6 +36,7 @@ from .google_calendar import *
 
 @api_view(['POST'])
 def register(request):
+    print(f"request: {request} request.data: {request.data}")
 
     serializer = UserModelSerializer(data=request.data)
 
@@ -194,17 +197,56 @@ def google_calendar_events(request):
 # @authentication_classes([TokenAuthentication])
 # @permission_classes([IsAuthenticated])
 def google_calendar_create_event(request):
-    print(f'view 197 {request}')
+    print(f'view 197 {request.data}')
     try:
+        if request.data is None:
+            raise ValueError("No data provided")
+        
         summary = request.data.get('summary')
         start_time = request.data.get('start_time')
         end_time = request.data.get('end_time')
         timezone = request.data.get('timezone')
-        attendees = request.data.get('attendees', [])
+        attendees = request.data.get('attendees')
 
+        print(f'HIIIIIIIIIII')
+        print(f'{summary}')
+        print(f'{start_time} {end_time}')
+        print(f'{timezone}')
+        print(f'{attendees}')
         event = create_event(summary,start_time, end_time, timezone, attendees)
+
+        if not event:
+            raise ValueError("Failed to create event with Google Calendar API")
+
+        user_id = request.data.get('user_id')
+        tutor_id = request.data.get('tutor_id')
+        link = event.get('hangoutLink')
+
+        print(f'{user_id}')
+        print(f'{tutor_id}')
+        print(f'{link}')
+
+        booking_data = {
+            'user_id': user_id,
+            'tutor_id': tutor_id,
+            'summary': summary,
+            'start_time': start_time,
+            'end_time': end_time,
+            'timezone': timezone,
+            'attendees': attendees,
+            'meeting_link': link
+        }
+
+        serializer = BookingSerializer(data=booking_data)
+
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         return Response(event, status=status.HTTP_201_CREATED)
     except Exception as e:
+        print("ERROR")
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -227,3 +269,12 @@ def google_calendar_delete_event(request, event_id):
         return Response(status=status.HTTP_204_NO_CONTENT)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+@api_view(['GET'])
+def view_meetings(request, id):
+    meetings = Booking.objects.filter(tutor_id=id)
+    if not meetings.exists():
+        meetings = Booking.objects.filter(user_id=id)
+    serializer = BookingSerializer(meetings, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

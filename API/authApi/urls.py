@@ -24,6 +24,7 @@ urlpatterns = [
     path('google-calendar/create-event', views.google_calendar_create_event),
     path('google-calendar/update-event/<str:event_id>', views.google_calendar_update_event),
     path('google-calendar/delete-event/<str:event_id>', views.google_calendar_delete_event),
+    path('meetings/<int:id>', views.view_meetings),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

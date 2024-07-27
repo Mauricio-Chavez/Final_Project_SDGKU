@@ -22,8 +22,6 @@ const HomeTutor = () => {
     )
   }
 
-
-
   return (
     <div>
       <h1>Home Tutor</h1>

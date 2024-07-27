@@ -110,9 +110,11 @@ def create_event(summary, start_time, end_time, timezone, attendees=None):
       }
     }
   }
+  print(f"event 113: {event}")
 
   if attendees:
     event['attendees'] = [{'email':email} for email in attendees]
+  print(f"event 117: {event}")
 
   try:
     event = service.events().insert(calendarId='primary', body=event, conferenceDataVersion=1).execute()
