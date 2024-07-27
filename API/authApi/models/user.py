@@ -32,7 +32,6 @@ class User(AbstractUser, PermissionsMixin):
   password = models.CharField(max_length=128)
   role = models.IntegerField()
   study_area = models.IntegerField(null=True, blank=True)
-  booking = models.DateField(null=True, blank=True)
   specialties = models.TextField(null=True, blank=True)
   hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
   experience = models.TextField(null=True, blank=True)
@@ -40,6 +39,10 @@ class User(AbstractUser, PermissionsMixin):
   photo = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
   messages = models.ForeignKey('Message', on_delete=models.CASCADE, null=True, blank=True)
   is_visible = models.BooleanField(null=True, blank=True)
+  gender = models.IntegerField(null=True, blank=True)
+  age = models.IntegerField(null=True, blank=True)
+  punctuation = models.IntegerField(null=True, blank=True)
+
   objects = CustomUserManager()
 
   USERNAME_FIELD = 'email'
@@ -83,3 +86,20 @@ class Certifications(models.Model):
 
   def __str__(self):
     return self.name
+  
+
+class Booking(models.Model):
+  tutor_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
+  user_id = models.IntegerField(null=True, blank=True)
+  summary = models.CharField(max_length=255)
+  start_time = models.DateTimeField()
+  end_time = models.DateTimeField()
+  timezone = models.CharField(max_length=50)
+  attendees = JSONField(null=True, blank=True)
+  meeting_link = models.CharField(max_length=255, null=True, blank=True)
+
+  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
+
+  def __str__(self):
+    return self.summary

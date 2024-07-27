@@ -12,7 +12,7 @@ const SidebarTutor: React.FC = () => {
         <div className="h-full px-3 py-4 overflow-y-auto bg-[#4b0007]">
           <Link to='profile' className="flex items-center mb-5 justify-center gap-5">
             {
-              user?.photo ? <img src={`http://localhost:8000/${user?.photo}`} className="h-6 me-3 sm:h-7 rounded-full" alt="Profile Photo" /> : <div className='bg-[#ECECEC] rounded-full w-7 h-7'><FontAwesomeIcon icon={faUser} className="edit-icon" size="1x" color='#b5b5b5'/></div>
+              user?.photo ? <img src={`http://localhost:8000/${user?.photo}`} className="h-6 me-3 sm:h-7 rounded-full" alt="Profile Photo" /> : <div className='bg-[#ECECEC] rounded-full w-7 h-7'><FontAwesomeIcon icon={faUser} className="edit-icon" size="1x" color='#b5b5b5' /></div>
             }
             <span className="self-center text-xl font-semibold whitespace-nowrap text-white">{`${user?.first_name}`}</span>
           </Link>
@@ -44,12 +44,12 @@ const SidebarTutor: React.FC = () => {
               </Link>
             </li>
             <li>
-              <a href="#" className="flex items-center p-2 text-white rounded-lg hover:bg-[#70000e] group">
+              <Link to="/bookings" className="flex items-center p-2 text-white rounded-lg hover:bg-[#70000e] group">
                 <svg className="flex-shrink-0 w-5 h-5 text-white transition duration-75 group-hover:text-[#b27f00]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
                   <path d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                 </svg>
-                <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
-              </a>
+                <span className="flex-1 ms-3 whitespace-nowrap">Tutorings</span>
+              </Link>
             </li>
             <li>
               <a href="#" className="flex items-center p-2 text-white rounded-lg hover:bg-[#70000e] group" onClick={logout}>

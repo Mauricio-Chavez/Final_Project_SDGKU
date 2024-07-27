@@ -11,7 +11,7 @@ class UserModelSerializer(serializers.ModelSerializer):
     # certifications = CertificationSerializer(many=True, read_only=True)
     class Meta:
         model = user.User
-        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'role', 'study_area', 'booking', 'specialties', 'hourly_rate', 'experience', 'availability', 'photo', 'messages', 'is_visible', 'created_at', 'updated_at']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'role', 'study_area', 'specialties', 'hourly_rate', 'experience', 'availability', 'photo', 'messages', 'is_visible', 'gender', 'age', 'punctuation', 'created_at', 'updated_at']
         extra_kwargs = {
             'password': {'write_only': True},
             'created_at': {'read_only': True},
@@ -38,4 +38,11 @@ class CertificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = user.Certifications
         fields = ['id', 'tutor_id', 'name', 'route_file', 'created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = user.Booking
+        fields = ['id','user_id', 'tutor_id', 'summary', 'start_time', 'end_time', 'timezone', 'attendees', 'meeting_link', 'created_at', 'updated_at']
         read_only_fields = ['created_at', 'updated_at']

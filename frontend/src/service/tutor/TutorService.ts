@@ -38,6 +38,43 @@ class TutorService {
       throw error; 
     }
   }
+
+  async getBookings(): Promise<any>{
+    try {
+      const { user } = useGlobalState.getState();
+      console.log('user', user);
+      if (!user || !user.id) {
+        throw new Error('User is not logged in or missing user ID');
+      }
+      const response: AxiosResponse = await axios.get(`http://localhost:8000/api/meetings/${user.id}`);
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error:', error.response?.data || error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+      throw error; 
+    }
+  }
+
+  async createBooking(obj: any): Promise<any>{
+    try {
+      const response: AxiosResponse = await axios.post("http://localhost:8000/api/google-calendar/create-event", obj, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        console.error('Axios error:', error.response?.data || error.message);
+      } else {
+        console.error('Unexpected error:', error);
+      }
+      throw error; 
+    }
+  }
 }
 
 export default new TutorService();

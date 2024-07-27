@@ -6,12 +6,16 @@ import useGlobalState from './context/GlobalState';
 import Login from './pages/auth/Login/Login';
 import Home from './pages/home';
 import Register from './pages/auth/Register/Register';
+import UploadCertifications from './pages/tutor/UploadCertifications';
+import ViewCertifications from './pages/tutor/ViewCertifications';
+import Booking from './pages/tutor/BookingPage';
+import DetailsTutor from './pages/users/DetailsTutor';
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Profile from './pages/content/Profile/Profile';
 import SidebarTutor from './components/sidebar';
 import HomeTutor from './pages/content/HomeTutor/HomeTutor';
-import UploadCertifications from './pages/tutor/UploadCertifications';
-import ViewCertifications from './pages/tutor/ViewCertifications';
+
 
 function App() {
   const { tokenExists, token, user } = useGlobalState();
@@ -42,9 +46,11 @@ function App() {
           <Route path='/home' element={token ? renderHome() : <Login />} />
           <Route path='/profile' element={token ? <Profile /> : <Login />} />
           <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register/> } />
-          <Route path='/upload-certifications' element={token ?  <UploadCertifications /> : <Login/>} />
-          <Route path='/view-certifications/:id' element={token  ? <ViewCertifications /> : <Login/>} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/upload-certifications' element={token ? <UploadCertifications /> : <Login />} />
+          <Route path='/view-certifications' element={token ? <ViewCertifications /> : <Login />} />
+          <Route path='/bookings' element={token ? <Booking /> : <Login />} />
+          <Route path='/details-tutor/:id' element={token ? <DetailsTutor /> : <Login />} />
         </Routes>
 
       </div>

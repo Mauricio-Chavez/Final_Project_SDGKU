@@ -19,6 +19,12 @@ urlpatterns = [
     path('users', views.getUsers),
     path('tutors', views.getTutors),
     path('visibility',views.update_visible),
+    path('oauth2callback', views.oauth2callback, name='oauth2callback'),
+    path('google-calendar/events', views.google_calendar_events, name='google_calendar_events'),
+    path('google-calendar/create-event', views.google_calendar_create_event),
+    path('google-calendar/update-event/<str:event_id>', views.google_calendar_update_event),
+    path('google-calendar/delete-event/<str:event_id>', views.google_calendar_delete_event),
+    path('meetings/<int:id>', views.view_meetings),
     path('updatephoto',views.update_photo),
     path('deletephoto',views.delete_photo),
 ]

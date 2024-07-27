@@ -1,0 +1,15 @@
+.booking {
+  margin-left: 184px;
+}
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+@media (max-width: 640px) {
+  .booking {
+    margin-left: 1px !important;
+  }
+}
