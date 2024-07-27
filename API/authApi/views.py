@@ -107,6 +107,17 @@ def user(request):
 @permission_classes([IsAuthenticated])
 def update_user(request):
     user = request.user
+    serializer = UserModelSerializer(instance=user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def update_photo(request):
+    user = request.user
     if 'photo' in request.data and request.data['photo'] != user.photo.name:
         if user.photo:
             if os.path.isfile(user.photo.path):
@@ -117,6 +128,19 @@ def update_user(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['DELETE'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def delete_photo(request):
+    user = request.user
+    if user.photo:
+        if os.path.isfile(user.photo.path):
+            os.remove(user.photo.path)
+        user.photo = None
+        user.save()
+        serializer = UserModelSerializer(instance=user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response({'error': 'No photo found'}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @authentication_classes([TokenAuthentication])

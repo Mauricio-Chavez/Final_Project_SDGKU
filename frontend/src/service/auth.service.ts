@@ -50,7 +50,7 @@ class AuthService {
             throw error; 
         }
     }
-
+    
     async updateUserInfo(obj: FormData){
         try {
             const response: AxiosResponse = await axios.put("http://localhost:8000/api/update", obj, {

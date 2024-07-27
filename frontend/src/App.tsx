@@ -13,8 +13,9 @@ import DetailsTutor from './pages/users/DetailsTutor';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Profile from './pages/content/Profile/Profile';
-import HomeTutor from './pages/content/HomeTutor/HomeTutor';
 import SidebarTutor from './components/sidebar';
+import HomeTutor from './pages/content/HomeTutor/HomeTutor';
+
 
 function App() {
   const { tokenExists, token, user } = useGlobalState();
